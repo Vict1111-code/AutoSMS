@@ -1,0 +1,53 @@
+<!-- templates/index.html -->
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>AuthoSMS - Termii Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 6px; text-align:left; }
+    .small { font-size: 0.9em; color: #666; }
+    #progressBar { width: 100%; background: #eee; height: 20px; border-radius: 4px; overflow: hidden; margin-top: 10px;}
+    #progressFill { height:100%; width:0%; background: linear-gradient(90deg,#4caf50,#8bc34a); text-align:center; color:white; }
+  </style>
+</head>
+<body>
+  <h2>AuthoSMS — Upload Excel & Send SMS</h2>
+
+  <div>
+    <label>Excel file: <input type="file" id="fileInput" accept=".xlsx,.xls" /></label>
+    <button id="uploadBtn">Upload & Preview</button>
+    <span class="small">Columns expected: Fullname, phone (or phone number)</span>
+  </div>
+
+  <div id="previewArea" style="display:none;">
+    <h3>Preview (select recipients)</h3>
+    <button id="selectAllBtn">Select All</button>
+    <button id="deselectAllBtn">Deselect All</button>
+    <label style="margin-left: 20px;"><input type="checkbox" id="personalizeToggle" /> Personalize with {name}</label>
+    <div style="margin-top:10px;">
+      <table id="previewTable">
+        <thead><tr><th></th><th>Fullname</th><th>Phone</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div style="margin-top:10px;">
+      <textarea id="messageBox" rows="4" style="width:100%;" placeholder="Write your message. Use {name} to insert recipient first name when personalize is checked."></textarea>
+    </div>
+    <div style="margin-top:10px;">
+      <button id="sendSelectedBtn">Send to Selected</button>
+      <button id="sendAllBtn">Send to All</button>
+    </div>
+  </div>
+
+  <div id="progressContainer" style="display:none;">
+    <h3>Progress</h3>
+    <div id="progressBar"><div id="progressFill">0%</div></div>
+    <div id="progressText" class="small"></div>
+  </div>
+
+  <script src="/static/main.js"></script>
+</body>
+</html>
