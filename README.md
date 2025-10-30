@@ -1,2 +1,2 @@
-# AutoSMSr
-Bulk SMS Automation App (AutoSMSr)
+# AutoSMS
+Bulk SMS Automation App (AutoSMS)
