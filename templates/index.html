@@ -1,53 +1,306 @@
-<!-- templates/index.html -->
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>AuthoSMS - Termii Demo</title>
+  <title>AuthoSMS — Neon Broadcaster</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    body { font-family: Arial, sans-serif; margin: 24px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 6px; text-align:left; }
-    .small { font-size: 0.9em; color: #666; }
-    #progressBar { width: 100%; background: #eee; height: 20px; border-radius: 4px; overflow: hidden; margin-top: 10px;}
-    #progressFill { height:100%; width:0%; background: linear-gradient(90deg,#4caf50,#8bc34a); text-align:center; color:white; }
+    :root{
+      --bg:#020617; --card:#0f1720; --accent:#00e6c6; --muted:#7f8c8d;
+      --glass: rgba(255,255,255,0.03);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;
+      background: linear-gradient(180deg,#000,#071022);color:#e6f7f2;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+    }
+    .wrap{max-width:1100px;margin:28px auto;padding:20px;}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .title{display:flex;gap:12px;align-items:center}
+    .logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#0078ff);box-shadow:0 6px 24px rgba(0,200,180,0.06)}
+    h1{margin:0;font-size:1.25rem;color:var(--accent);text-shadow:0 0 8px rgba(0,230,198,0.12)}
+    p.lead{margin:0;color:var(--muted);font-size:0.95rem}
+
+    /* layout */
+    .grid{display:grid;grid-template-columns:1fr 380px;gap:18px;margin-top:18px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+    /* card */
+    .card{background:linear-gradient(180deg, #081320, #071421);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+    label.file{display:inline-block;background:var(--card);padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);cursor:pointer}
+    input[type=file]{display:none}
+
+    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    button.btn{background:linear-gradient(90deg,var(--accent),#0078ff);color:#001; border:none;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer;box-shadow:0 8px 30px rgba(0,200,180,0.06)}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:#d7f3ee}
+    button:disabled{opacity:0.5;cursor:not-allowed}
+
+    textarea#message{width:100%;min-height:120px;border-radius:8px;padding:12px;background:var(--glass);border:1px solid rgba(255,255,255,0.03);color:inherit;resize:vertical}
+    .small{color:var(--muted);font-size:0.9rem}
+
+    /* preview area */
+    .preview-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .table-wrap{max-height:480px;overflow:auto;border-radius:8px;border:1px solid rgba(255,255,255,0.02);background:linear-gradient(180deg,#08121a,#07121a)}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.02);text-align:left;font-size:0.95rem}
+    th{background:transparent;color:var(--accent);font-weight:600;position:sticky;top:0;backdrop-filter:blur(6px)}
+    tr{transform:translateY(18px);opacity:0;animation:slideIn 0.5s forwards}
+    @keyframes slideIn{to{transform:none;opacity:1}}
+    tr:nth-child(odd){background:rgba(255,255,255,0.01)}
+
+    .loadmore{display:block;margin:14px auto;padding:10px 24px;border-radius:24px;border:1px solid rgba(255,255,255,0.04);background:linear-gradient(90deg,#07323a55,#004b57);color:var(--accent);cursor:pointer;box-shadow:0 8px 30px rgba(0,120,180,0.04);animation:pulse 2s infinite}
+    @keyframes pulse{0%{box-shadow:0 0 6px #005b4f33}50%{box-shadow:0 0 22px #00e6c6aa}}
+
+    /* progress */
+    .progress-bar{height:18px;background:rgba(255,255,255,0.03);border-radius:9px;overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
+    .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#0078ff);transition:width 0.4s}
+
+    /* toast */
+    #toast{position:fixed;right:18px;bottom:18px;background:#002529;color:var(--accent);padding:12px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 8px 30px rgba(0,230,198,0.06);opacity:0;transform:translateY(12px);transition:all .4s}
+    #toast.show{opacity:1;transform:none}
+
+    /* responsive small table labels */
+    @media(max-width:600px){
+      table, thead, tbody, th, td, tr{display:block}
+      thead{display:none}
+      tr{margin-bottom:12px;border-radius:8px;background:linear-gradient(180deg,#07181b,#061419);padding:10px}
+      td{display:flex;justify-content:space-between;padding:6px 8px;border:none}
+      td:before{content:attr(data-label);font-weight:600;color:var(--accent);margin-right:8px}
+    }
   </style>
 </head>
 <body>
-  <h2>AuthoSMS — Upload Excel & Send SMS</h2>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <div class="logo"></div>
+        <div>
+          <h1>AuthoSMS</h1>
+          <p class="lead">Upload contacts, preview, and broadcast SMS — fast.</p>
+        </div>
+      </div>
 
-  <div>
-    <label>Excel file: <input type="file" id="fileInput" accept=".xlsx,.xls" /></label>
-    <button id="uploadBtn">Upload & Preview</button>
-    <span class="small">Columns expected: Fullname, phone (or phone number)</span>
+      <div class="controls">
+        <label class="file">
+          Choose file
+          <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+        </label>
+        <button id="uploadBtn" class="btn">Upload & Preview</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT: preview + message -->
+      <section class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div class="small">Preview results</div>
+            <div id="metaInfo" style="font-weight:700;color:var(--accent)">Showing <span id="shown">0</span> of <span id="total">0</span> contacts</div>
+          </div>
+          <div class="small" id="statusText">Idle</div>
+        </div>
+
+        <div class="table-wrap card" id="tableWrap" style="padding:6px">
+          <table id="previewTable" aria-live="polite">
+            <thead>
+              <tr><th></th><th>Fullname</th><th>Phone</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <button id="loadMoreBtn" class="loadmore" style="display:none">🌊 Load More</button>
+
+        <div style="margin-top:12px">
+          <textarea id="message" placeholder="Type message. Use {name} to personalize first name..."></textarea>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap">
+          <label class="small" style="display:flex;gap:8px;align-items:center"><input id="personalize" type="checkbox" /> Personalize with {name}</label>
+          <button id="sendBtn" class="btn" disabled>Start Sending</button>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+        </div>
+      </section>
+
+      <!-- RIGHT: info / actions -->
+      <aside class="card">
+        <h3 style="margin-top:0">Quick actions</h3>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button id="downloadSample" class="ghost">Download sample (50)</button>
+          <div class="small">Sender ID: <strong id="senderIdLabel"></strong></div>
+          <div style="margin-top:8px" class="small">Tip: you can preview the first 100 records. Use Load More for big lists.</div>
+        </div>
+      </aside>
+    </div>
   </div>
 
-  <div id="previewArea" style="display:none;">
-    <h3>Preview (select recipients)</h3>
-    <button id="selectAllBtn">Select All</button>
-    <button id="deselectAllBtn">Deselect All</button>
-    <label style="margin-left: 20px;"><input type="checkbox" id="personalizeToggle" /> Personalize with {name}</label>
-    <div style="margin-top:10px;">
-      <table id="previewTable">
-        <thead><tr><th></th><th>Fullname</th><th>Phone</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <div style="margin-top:10px;">
-      <textarea id="messageBox" rows="4" style="width:100%;" placeholder="Write your message. Use {name} to insert recipient first name when personalize is checked."></textarea>
-    </div>
-    <div style="margin-top:10px;">
-      <button id="sendSelectedBtn">Send to Selected</button>
-      <button id="sendAllBtn">Send to All</button>
-    </div>
-  </div>
+  <div id="toast">Preview ready — X contacts loaded</div>
 
-  <div id="progressContainer" style="display:none;">
-    <h3>Progress</h3>
-    <div id="progressBar"><div id="progressFill">0%</div></div>
-    <div id="progressText" class="small"></div>
-  </div>
+  <!-- sounds -->
+  <audio id="ping" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3"></audio>
+  <audio id="whoosh" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-quick-win-video-game-notification-269.mp3"></audio>
 
-  <script src="/static/main.js"></script>
+  <script>
+    // --- elements
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const previewTableBody = document.querySelector('#previewTable tbody');
+    const shownEl = document.getElementById('shown');
+    const totalEl = document.getElementById('total');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const toast = document.getElementById('toast');
+    const ping = document.getElementById('ping');
+    const whoosh = document.getElementById('whoosh');
+    const messageEl = document.getElementById('message');
+    const personalizeCheckbox = document.getElementById('personalize');
+    const sendBtn = document.getElementById('sendBtn');
+    const statusText = document.getElementById('statusText');
+    const progressFill = document.getElementById('progressFill');
+    const senderIdLabel = document.getElementById('senderIdLabel');
+
+    // config
+    const PAGE = 100;
+    let jobId = null;
+    let offset = 0;
+    let total = 0;
+
+    // set sender label from server env (optional)
+    senderIdLabel.textContent = "{{ TERMII_SENDER_ID }}" || "InfoText";
+
+    // show toast
+    function showToast(msg){
+      toast.textContent = msg; toast.classList.add('show');
+      setTimeout(()=>toast.classList.remove('show'), 3000);
+    }
+
+    // append rows safely (stagger animation)
+    function appendRows(rows){
+      const start = offset;
+      rows.forEach((r,i)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${start + i + 1}</td><td data-label="Fullname">${escapeHTML(r.fullname)}</td><td data-label="Phone">${escapeHTML(r.phone)}</td>`;
+        previewTableBody.appendChild(tr);
+        // stagger reveal
+        tr.style.animationDelay = (i * 40) + 'ms';
+      });
+      offset += rows.length;
+      shownEl.textContent = offset;
+      ping.currentTime = 0; ping.play().catch(()=>{});
+    }
+
+    function escapeHTML(s){ return String(s||'').replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+    // upload handler
+    uploadBtn.addEventListener('click', async()=>{
+      const file = fileInput.files[0];
+      if(!file){ alert('Please choose an Excel/CSV file.'); return; }
+      uploadBtn.disabled = true; uploadBtn.textContent = 'Uploading...'; statusText.textContent = 'Uploading file...';
+
+      const fd = new FormData(); fd.append('file', file);
+      try{
+        const res = await fetch('/upload', {method:'POST', body: fd});
+        const json = await res.json();
+        if(json.error){ alert(json.error); return; }
+        jobId = json.job_id; total = json.preview_count; offset = 0;
+        previewTableBody.innerHTML = '';
+        // initial preview
+        if(json.preview && json.preview.length){
+          appendRows(json.preview);
+        }
+        shownEl.textContent = offset;
+        totalEl.textContent = total;
+        statusText.textContent = 'Preview loaded';
+        if(offset < total) loadMoreBtn.style.display = 'inline-block'; else loadMoreBtn.style.display = 'none';
+        sendBtn.disabled = false;
+        showToast(`✅ Preview ready — ${total} contacts loaded`);
+        whoosh.currentTime = 0; whoosh.play().catch(()=>{});
+      }catch(err){
+        console.error(err); alert('Upload failed: ' + err.message);
+      } finally {
+        uploadBtn.disabled = false; uploadBtn.textContent = 'Upload & Preview';
+      }
+    });
+
+    // load more
+    loadMoreBtn.addEventListener('click', async()=>{
+      if(!jobId) return;
+      loadMoreBtn.disabled = true; loadMoreBtn.textContent = 'Loading...';
+      try{
+        const res = await fetch(`/preview/${jobId}?offset=${offset}&limit=${PAGE}`);
+        const json = await res.json();
+        appendRows(json.preview || []);
+        totalEl.textContent = total;
+        if(offset >= total) loadMoreBtn.style.display = 'none';
+        else { loadMoreBtn.style.display = 'inline-block'; }
+      }catch(e){
+        console.error(e); alert('Could not load more: ' + e.message);
+      } finally {
+        loadMoreBtn.disabled = false; loadMoreBtn.textContent = '🌊 Load More';
+      }
+    });
+
+    // download sample small file
+    document.getElementById('downloadSample').addEventListener('click', ()=>{
+      // generate CSV client-side for quick sample
+      const rows = [['Fullname','Phone']];
+      for(let i=1;i<=50;i++) rows.push([`Sample ${i}`, `0803${String(10000000 + i).slice(1)}`]);
+      const csv = rows.map(r=>r.map(cell=>`"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'sample_contacts_50.csv'; a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // send messages
+    sendBtn.addEventListener('click', async()=>{
+      if(!jobId){ alert('Upload contacts first'); return; }
+      const message = messageEl.value || message.value || document.getElementById('message').value;
+      if(!message || !message.trim()){ alert('Please write a message'); return; }
+      sendBtn.disabled = true; statusText.textContent = 'Queued to send...'; whoosh.currentTime=0; whoosh.play().catch(()=>{});
+      try{
+        const res = await fetch('/send',{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify({job_id: jobId, message: message.trim(), personalize: personalizeCheckbox.checked})});
+        const json = await res.json();
+        if(json.error){ alert(json.error); sendBtn.disabled = false; return; }
+        const sendJobId = json.send_job_id;
+        trackProgress(sendJobId);
+      }catch(e){
+        console.error(e); alert('Send failed: ' + e.message); sendBtn.disabled = false;
+      }
+    });
+
+    // track progress
+    async function trackProgress(sendJobId){
+      statusText.textContent = 'Sending...'; progressFill.style.width = '0%';
+      const poll = setInterval(async()=>{
+        try{
+          const res = await fetch(`/progress/${sendJobId}`);
+          const data = await res.json();
+          if(data.error){ clearInterval(poll); statusText.textContent='Error'; sendBtn.disabled = false; return; }
+          const pct = data.percent || 0;
+          progressFill.style.width = pct + '%';
+          statusText.textContent = `${data.sent || 0} sent • ${data.failed || 0} failed`;
+          if(data.status === 'completed'){
+            clearInterval(poll);
+            showToast(`Done — Sent ${data.sent}/${data.total} (${data.failed} failed)`);
+            sendBtn.disabled = false;
+            progressFill.style.width = '100%';
+          }
+        }catch(e){
+          console.error(e);
+          clearInterval(poll);
+          statusText.textContent = 'Error';
+          sendBtn.disabled = false;
+        }
+      }, 1000);
+    }
+
+    // small polyfill to get message element from earlier markup compatibility
+    const messageEl2 = document.getElementById('message');
+    if(messageEl2 && !messageEl) window.message = messageEl2;
+  </script>
 </body>
 </html>
